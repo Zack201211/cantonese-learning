@@ -1098,21 +1098,28 @@
             document.getElementById('progressFill').style.width = progressPercent + '%';
         }
 
-        // 朗读 - 使用百度语音
+        // 朗读 - 尝试多种语音服务
         function speak(text) {
-            // 先尝试百度粤语
+            // 尝试腾讯云语音合成（支持粤语）
             const audio = new Audio();
-            audio.src = `https://fanyi.baidu.com/gettts?lan=cte&text=${encodeURIComponent(text)}&spd=5&source=web`;
+            // 腾讯云免费语音测试
+            audio.src = `https://tts.cloud.tencent.com/fcgi-bin/fcg_voice_tts?tex=${encodeURIComponent(text)}&voice=1011&speed=0&volume=0&pip=8&cue=0&filetype=mp3`;
             audio.play();
 
-            // 同时也尝试浏览器语音作为备用
+            // 如果失败，尝试百度
             audio.onerror = function() {
-                if ('speechSynthesis' in window) {
-                    const utterance = new SpeechSynthesisUtterance(text);
-                    utterance.lang = 'zh-CN';
-                    utterance.rate = 0.8;
-                    speechSynthesis.speak(utterance);
-                }
+                const audio2 = new Audio();
+                audio2.src = `https://fanyi.baidu.com/gettts?lan=zh&text=${encodeURIComponent(text)}&spd=5&source=web`;
+                audio2.play();
+                audio2.onerror = function() {
+                    // 最后用浏览器语音
+                    if ('speechSynthesis' in window) {
+                        const utterance = new SpeechSynthesisUtterance(text);
+                        utterance.lang = 'zh-CN';
+                        utterance.rate = 0.8;
+                        speechSynthesis.speak(utterance);
+                    }
+                };
             };
         }
 
