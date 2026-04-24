@@ -1098,41 +1098,36 @@
             document.getElementById('progressFill').style.width = progressPercent + '%';
         }
 
-        // 朗读 - 粤语语音（移动端优化）
-        function speak(text) {
-            // 百度粤语语音
-            const audio = new Audio();
-            audio.src = `https://fanyi.baidu.com/gettts?lan=cte&text=${encodeURIComponent(text)}&spd=4&source=web`;
-            audio.volume = 1;
+        // 朗读 - 点击播放
+        function speak(text, event) {
+            if (event) event.preventDefault();
 
-            // 尝试播放
-            const playPromise = audio.play();
-            if (playPromise !== undefined) {
-                playPromise.then(() => {
-                    // 播放成功
-                }).catch(error => {
-                    // 自动播放被阻止，需要用户交互
-                    // 尝试腾讯语音
-                    tryPlayTencent(text);
-                });
-            }
+            // 百度粤语
+            try {
+                const audio = new Audio();
+                audio.src = `https://fanyi.baidu.com/gettts?lan=cte&text=${encodeURIComponent(text)}&spd=4&source=web`;
+                audio.play();
+            } catch(e) {}
 
-            // 腾讯语音作为备用
-            function tryPlayTencent(t) {
-                const audio2 = new Audio();
-                audio2.src = `https://tts.cloud.tencent.com/fcgi-bin/fcg_voice_tts?tex=${encodeURIComponent(t)}&voice=1011&speed=0&volume=0&pip=8&cue=0&filetype=mp3`;
-                audio2.play().catch(() => {});
-            }
+            // 腾讯语音备用
+            setTimeout(() => {
+                try {
+                    const audio2 = new Audio();
+                    audio2.src = `https://tts.cloud.tencent.com/fcgi-bin/fcg_voice_tts?tex=${encodeURIComponent(text)}&voice=1011&speed=0&volume=0&pip=8&cue=0&filetype=mp3`;
+                    audio2.play();
+                } catch(e) {}
+            }, 300);
 
-            // 也尝试浏览器语音
+            // 浏览器语音备用
             setTimeout(() => {
                 if ('speechSynthesis' in window) {
+                    speechSynthesis.cancel();
                     const utterance = new SpeechSynthesisUtterance(text);
                     utterance.lang = 'zh-CN';
                     utterance.rate = 0.7;
                     speechSynthesis.speak(utterance);
                 }
-            }, 500);
+            }, 600);
         }
 
         // 跟读练习
