@@ -1098,21 +1098,23 @@
             document.getElementById('progressFill').style.width = progressPercent + '%';
         }
 
-        // 朗读
+        // 朗读 - 电脑用Google粤语，手机用有道
         function speak(text, event) {
             if (event) event.preventDefault();
 
-            // 有道语音（稳定）
-            const audio1 = new Audio();
-            audio1.src = `https://dict.youdao.com/dictvoice?type=1&audio=${encodeURIComponent(text)}`;
-            audio1.play();
+            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 
-            // 百度备用
-            setTimeout(() => {
-                const audio2 = new Audio();
-                audio2.src = `https://fanyi.baidu.com/gettts?lan=zh&text=${encodeURIComponent(text)}&spd=4&source=web`;
-                audio2.play();
-            }, 200);
+            if (!isMobile) {
+                // 电脑：用Google粤语TTS
+                const audio = new Audio();
+                audio.src = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(text)}&tl=yue&client=tw-ob`;
+                audio.play();
+            } else {
+                // 手机：用有道语音
+                const audio1 = new Audio();
+                audio1.src = `https://dict.youdao.com/dictvoice?type=1&audio=${encodeURIComponent(text)}`;
+                audio1.play();
+            }
 
             // 浏览器语音备用
             setTimeout(() => {
@@ -1123,7 +1125,7 @@
                     utterance.rate = 0.6;
                     speechSynthesis.speak(utterance);
                 }
-            }, 400);
+            }, 500);
         }
 
         // 跟读练习
