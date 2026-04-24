@@ -1,0 +1,21 @@
+{
+  "name": "粤语学习小助手",
+  "short_name": "粤语学习",
+  "description": "亲子粤语学习工具",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#FF6B6B",
+  "theme_color": "#FF6B6B",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

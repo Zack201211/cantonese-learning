@@ -1,0 +1,1389 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#FF6B6B">
+    <meta name="description" content="亲子粤语学习小助手">
+    <title>粤语学习小助手</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon.png">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        :root {
+            --primary: #FF6B6B;
+            --secondary: #4ECDC4;
+            --accent: #FFE66D;
+            --dark: #2C3E50;
+            --light: #F7F7F7;
+            --white: #FFFFFF;
+            --shadow: 0 4px 15px rgba(0,0,0,0.1);
+            --success: #4CAF50;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", sans-serif;
+            background: linear-gradient(135deg, #FF6B6B 0%, #FF8E8E 100%);
+            min-height: 100vh;
+            color: var(--dark);
+        }
+
+        .container {
+            max-width: 480px;
+            margin: 0 auto;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        /* 通用样式 */
+        .page {
+            display: none;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        .logo {
+            font-size: 80px;
+            margin-bottom: 20px;
+        }
+
+        .title {
+            font-size: 32px;
+            color: var(--white);
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .subtitle {
+            font-size: 16px;
+            color: rgba(255,255,255,0.9);
+            margin-bottom: 40px;
+        }
+
+        .menu-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.3);
+            border: none;
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .back-btn {
+            background: rgba(255,255,255,0.3);
+            border: none;
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            font-size: 20px;
+            cursor: pointer;
+            color: var(--white);
+        }
+
+        .page-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 30px;
+        }
+
+        .page-title {
+            color: var(--white);
+            font-size: 20px;
+        }
+
+        .main-btn {
+            background: var(--accent);
+            color: var(--dark);
+            border: none;
+            padding: 18px 60px;
+            font-size: 20px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            box-shadow: 0 6px 20px rgba(255,230,109,0.4);
+            transition: transform 0.2s;
+        }
+
+        .main-btn:active {
+            transform: scale(0.95);
+        }
+
+        .main-btn.secondary {
+            background: var(--white);
+            color: var(--primary);
+            padding: 15px 40px;
+            font-size: 16px;
+        }
+
+        /* 首页 */
+        .home-page {
+            text-align: center;
+            padding-top: 40px;
+        }
+
+        .streak-card {
+            background: var(--white);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: var(--shadow);
+        }
+
+        .streak-number {
+            font-size: 48px;
+            color: var(--primary);
+            font-weight: bold;
+        }
+
+        .streak-label {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .stats-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            flex: 1;
+            background: var(--white);
+            border-radius: 15px;
+            padding: 15px;
+            text-align: center;
+            box-shadow: var(--shadow);
+        }
+
+        .stat-value {
+            font-size: 24px;
+            color: var(--primary);
+            font-weight: bold;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #888;
+        }
+
+        /* 学习页面 */
+        .progress-bar {
+            background: rgba(255,255,255,0.3);
+            height: 8px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--accent);
+            border-radius: 4px;
+            transition: width 0.3s;
+        }
+
+        .level-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            justify-content: center;
+        }
+
+        .level-btn {
+            flex: 1;
+            padding: 15px 10px;
+            border: none;
+            border-radius: 15px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: rgba(255,255,255,0.3);
+            color: var(--white);
+        }
+
+        .level-btn.active {
+            background: var(--white);
+            color: var(--primary);
+            transform: translateY(-3px);
+            box-shadow: var(--shadow);
+        }
+
+        .level-btn .level-icon {
+            font-size: 28px;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .level-btn .level-stars {
+            font-size: 12px;
+        }
+
+        .word-card {
+            background: var(--white);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow);
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .word-card:active {
+            transform: scale(0.98);
+        }
+
+        .word-emoji {
+            font-size: 80px;
+            margin-bottom: 15px;
+        }
+
+        .word-cantonese {
+            font-size: 36px;
+            color: var(--primary);
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .word-pinyin {
+            font-size: 18px;
+            color: #888;
+            margin-bottom: 8px;
+        }
+
+        .word-meaning {
+            font-size: 16px;
+            color: #666;
+        }
+
+        .word-stars {
+            margin-top: 10px;
+            font-size: 18px;
+        }
+
+        .word-audio-hint {
+            margin-top: 15px;
+            font-size: 13px;
+            color: #aaa;
+        }
+
+        .word-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .word-action-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            font-size: 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .word-action-btn.listen {
+            background: var(--secondary);
+            color: var(--white);
+        }
+
+        .word-action-btn.speak {
+            background: var(--primary);
+            color: var(--white);
+        }
+
+        .word-action-btn.done {
+            background: var(--success);
+            color: var(--white);
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .nav-btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 50px;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .prev-btn {
+            background: var(--light);
+            color: var(--dark);
+        }
+
+        .next-btn {
+            background: var(--secondary);
+            color: var(--white);
+        }
+
+        /* 作业页面 */
+        .homework-page {
+            text-align: center;
+        }
+
+        .homework-card {
+            background: var(--white);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow);
+        }
+
+        .homework-question {
+            font-size: 24px;
+            color: var(--dark);
+            margin-bottom: 20px;
+        }
+
+        .homework-emoji {
+            font-size: 100px;
+            margin: 20px 0;
+        }
+
+        .homework-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .homework-option {
+            padding: 20px;
+            border: 2px solid #eee;
+            border-radius: 15px;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: var(--white);
+        }
+
+        .homework-option:active {
+            transform: scale(0.95);
+        }
+
+        .homework-option.correct {
+            border-color: var(--success);
+            background: #E8F5E9;
+        }
+
+        .homework-option.wrong {
+            border-color: var(--primary);
+            background: #FFEBEE;
+        }
+
+        .homework-audio-btn {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: var(--primary);
+            border: none;
+            font-size: 36px;
+            cursor: pointer;
+            margin: 20px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .homework-progress {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .homework-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.4);
+        }
+
+        .homework-dot.done {
+            background: var(--success);
+        }
+
+        .homework-dot.current {
+            background: var(--accent);
+        }
+
+        .homework-dot.wrong {
+            background: var(--primary);
+        }
+
+        /* 作业-跟读模式 */
+        .speak-practice {
+            background: var(--white);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 20px;
+        }
+
+        .speak-target {
+            font-size: 48px;
+            color: var(--primary);
+            margin: 20px 0;
+        }
+
+        .speak-instruction {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .record-btn {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: var(--primary);
+            border: none;
+            font-size: 40px;
+            cursor: pointer;
+            margin: 20px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .record-btn.recording {
+            animation: pulse 1s infinite;
+            background: var(--success);
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        /* 完成页面 */
+        .complete-page {
+            text-align: center;
+            padding-top: 40px;
+        }
+
+        .complete-emoji {
+            font-size: 100px;
+            margin-bottom: 20px;
+        }
+
+        .complete-title {
+            font-size: 28px;
+            color: var(--white);
+            margin-bottom: 20px;
+        }
+
+        .score-card {
+            background: var(--white);
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+
+        .score-value {
+            font-size: 64px;
+            color: var(--primary);
+            font-weight: bold;
+        }
+
+        .score-label {
+            font-size: 16px;
+            color: #666;
+        }
+
+        .wrong-words {
+            background: var(--white);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: left;
+            margin-bottom: 20px;
+        }
+
+        .wrong-word-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        /* 设置页面 */
+        .setting-item {
+            background: var(--white);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .setting-label {
+            font-size: 16px;
+            color: var(--dark);
+        }
+
+        .setting-input {
+            padding: 12px 20px;
+            border: 2px solid #eee;
+            border-radius: 10px;
+            font-size: 16px;
+            width: 120px;
+            text-align: center;
+        }
+
+        .save-btn {
+            background: var(--primary);
+            color: var(--white);
+            border: none;
+            padding: 15px 40px;
+            font-size: 18px;
+            border-radius: 50px;
+            cursor: pointer;
+            display: block;
+            margin: 30px auto 0;
+            font-weight: bold;
+        }
+
+        /* 动画 */
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .float {
+            animation: float 3s ease-in-out infinite;
+        }
+
+        /* 提示 */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--dark);
+            color: var(--white);
+            padding: 15px 25px;
+            border-radius: 50px;
+            font-size: 14px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            z-index: 100;
+        }
+
+        .toast.show {
+            opacity: 1;
+        }
+
+        /* 确认弹窗 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--white);
+            padding: 30px;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 320px;
+        }
+
+        .modal-title {
+            font-size: 18px;
+            margin-bottom: 15px;
+        }
+
+        .modal-btns {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .modal-btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 50px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .modal-btn.cancel {
+            background: #eee;
+        }
+
+        .modal-btn.confirm {
+            background: var(--primary);
+            color: var(--white);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 首页 -->
+        <div class="page home-page active" id="homePage">
+            <button class="menu-btn" onclick="showPage('settingsPage')">⚙️</button>
+            <div class="logo float">🦆</div>
+            <h1 class="title">粤语学习小助手</h1>
+            <p class="subtitle">和爸爸妈妈一起学粤语</p>
+
+            <div class="stats-row">
+                <div class="stat-card">
+                    <div class="stat-value" id="streakCount">0</div>
+                    <div class="stat-label">连续天数</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="wordsLearned">0</div>
+                    <div class="stat-label">已学词汇</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="wordsMastered">0</div>
+                    <div class="stat-label">已掌握</div>
+                </div>
+            </div>
+
+            <button class="main-btn" onclick="startLearning()">开始学习</button>
+        </div>
+
+        <!-- 学习页面 -->
+        <div class="page learn-page" id="learnPage">
+            <div class="page-header">
+                <button class="back-btn" onclick="confirmExitLearn()">←</button>
+                <span class="page-title">每日学习</span>
+                <button class="back-btn" style="opacity:0" onclick=""> </button>
+            </div>
+
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+            </div>
+
+            <div class="level-selector" id="levelSelector"></div>
+
+            <div id="wordCards"></div>
+
+            <div class="nav-buttons">
+                <button class="nav-btn prev-btn" onclick="prevWord()">上一个</button>
+                <button class="nav-btn next-btn" onclick="nextWord()">下一个</button>
+            </div>
+
+            <div style="text-align:center; margin-top:20px;">
+                <button class="main-btn secondary" onclick="finishLearning()">学完了，去做作业</button>
+            </div>
+        </div>
+
+        <!-- 作业页面 - 选择题 -->
+        <div class="page homework-page" id="homeworkPage">
+            <div class="page-header">
+                <button class="back-btn" onclick="showPage('homePage')">←</button>
+                <span class="page-title">每日作业</span>
+                <div style="width:44px"></div>
+            </div>
+
+            <div class="homework-progress" id="homeworkProgress"></div>
+
+            <div class="homework-card" id="homeworkCard">
+                <div class="homework-question" id="homeworkQuestion">听音识词</div>
+                <button class="homework-audio-btn" onclick="playHomeworkAudio()">🔊</button>
+                <div class="homework-emoji" id="homeworkEmoji">❓</div>
+                <div class="homework-options" id="homeworkOptions"></div>
+            </div>
+        </div>
+
+        <!-- 作业页面 - 跟读 -->
+        <div class="page speak-homework-page" id="speakHomeworkPage">
+            <div class="page-header">
+                <button class="back-btn" onclick="showPage('homePage')">←</button>
+                <span class="page-title">跟读练习</span>
+                <div style="width:44px"></div>
+            </div>
+
+            <div class="homework-progress" id="speakProgress"></div>
+
+            <div class="speak-practice">
+                <div class="speak-instruction" id="speakInstruction">请跟爸爸妈妈一起读：</div>
+                <div class="speak-target" id="speakTarget">你好</div>
+                <div class="word-pinyin" id="speakPinyin">nei5 hou2</div>
+                <button class="homework-audio-btn" onclick="playSpeakTarget()">🔊</button>
+                <button class="record-btn" id="recordBtn" onclick="toggleRecord()">🎤</button>
+                <div class="speak-instruction" id="recordHint">点击录音，跟读上面的词语</div>
+            </div>
+
+            <button class="main-btn secondary" onclick="nextSpeakQuestion()">下一个</button>
+        </div>
+
+        <!-- 完成页面 -->
+        <div class="page complete-page" id="completePage">
+            <div class="complete-emoji">🎉</div>
+            <h1 class="complete-title">今日学习完成！</h1>
+
+            <div class="score-card">
+                <div class="score-value" id="scoreValue">100</div>
+                <div class="score-label">作业得分</div>
+            </div>
+
+            <div class="wrong-words" id="wrongWords" style="display:none">
+                <div style="font-weight:bold; margin-bottom:10px;">需要加强的词汇：</div>
+                <div id="wrongWordsList"></div>
+            </div>
+
+            <button class="main-btn" onclick="showPage('homePage')">明天再来</button>
+        </div>
+
+        <!-- 设置页面 -->
+        <div class="page settings-page" id="settingsPage">
+            <div class="page-header">
+                <button class="back-btn" onclick="showPage('homePage')">←</button>
+                <span class="page-title">设置</span>
+                <div style="width:44px"></div>
+            </div>
+
+            <div class="setting-item">
+                <span class="setting-label">每日提醒时间</span>
+                <input type="time" id="reminderTime" class="setting-input" value="19:00">
+            </div>
+
+            <div class="setting-item">
+                <span class="setting-label">开启提醒</span>
+                <input type="checkbox" id="reminderEnabled" style="width:24px;height:24px">
+            </div>
+
+            <div class="setting-item">
+                <span class="setting-label">清除所有记录</span>
+                <button class="modal-btn cancel" onclick="clearProgress()">清除</button>
+            </div>
+
+            <button class="save-btn" onclick="saveSettings()">保存设置</button>
+        </div>
+    </div>
+
+    <!-- 提示弹窗 -->
+    <div class="toast" id="toast"></div>
+
+    <!-- 确认弹窗 -->
+    <div class="modal" id="modal">
+        <div class="modal-content">
+            <div class="modal-title" id="modalTitle">确认开始今天的学习吗？</div>
+            <div class="modal-btns">
+                <button class="modal-btn cancel" onclick="closeModal()">取消</button>
+                <button class="modal-btn confirm" onclick="confirmStart()">开始</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 粤语学习内容
+        const content = {
+            1: [
+                { emoji: '🐶', word: '狗', pinyin: 'gau2', meaning: 'dog' },
+                { emoji: '🐱', word: '猫', pinyin: 'maau1', meaning: 'cat' },
+                { emoji: '🐟', word: '鱼', pinyin: 'jyu4', meaning: 'fish' },
+                { emoji: '🐦', word: '鸟', pinyin: 'niu5', meaning: 'bird' },
+                { emoji: '🐷', word: '猪', pinyin: 'zyu1', meaning: 'pig' },
+                { emoji: '🐰', word: '兔', pinyin: 'taau3', meaning: 'rabbit' },
+                { emoji: '🐸', word: '蛙', pinyin: 'waa1', meaning: 'frog' },
+                { emoji: '🔴', word: '红', pinyin: 'hung4', meaning: '红色/red' },
+                { emoji: '🟡', word: '黄', pinyin: 'wong4', meaning: '黄色/yellow' },
+                { emoji: '🔵', word: '蓝', pinyin: 'laam4', meaning: '蓝色/blue' },
+                { emoji: '🟢', word: '绿', pinyin: 'luk6', meaning: '绿色/green' },
+                { emoji: '⚪', word: '白', pinyin: 'baak6', meaning: '白色/white' },
+                { emoji: '⚫', word: '黑', pinyin: 'hak1', meaning: '黑色/black' },
+                { emoji: '1️⃣', word: '一', pinyin: 'jat1', meaning: 'one' },
+                { emoji: '2️⃣', word: '二', pinyin: 'ji6', meaning: 'two' },
+                { emoji: '3️⃣', word: '三', pinyin: 'saam1', meaning: 'three' },
+                { emoji: '4️⃣', word: '四', pinyin: 'sei3', meaning: 'four' },
+                { emoji: '5️⃣', word: '五', pinyin: 'ng5', meaning: 'five' },
+                { emoji: '6️⃣', word: '六', pinyin: 'luk6', meaning: 'six' },
+                { emoji: '7️⃣', word: '七', pinyin: 'cat1', meaning: 'seven' },
+                { emoji: '8️⃣', word: '八', pinyin: 'baat3', meaning: 'eight' },
+                { emoji: '9️⃣', word: '九', pinyin: 'gau2', meaning: 'nine' },
+                { emoji: '🔟', word: '十', pinyin: 'sap6', meaning: 'ten' }
+            ],
+            2: [
+                { emoji: '👋', word: '你好', pinyin: 'nei5 hou2', meaning: '你好/hello' },
+                { emoji: '🌅', word: '早晨', pinyin: 'zou2 san4', meaning: '早上好/good morning' },
+                { emoji: '👋', word: '拜拜', pinyin: 'bai1 bai1', meaning: '再见/bye bye' },
+                { emoji: '🙏', word: '唔该', pinyin: 'm4 goi1', meaning: '谢谢/thank you' },
+                { emoji: '🍚', word: '食饭', pinyin: 'sik6 faan6', meaning: '吃饭/have meal' },
+                { emoji: '😴', word: '眼瞓', pinyin: 'ngaan6 fan3', meaning: '想睡觉/sleepy' },
+                { emoji: '🚽', word: '厕所', pinyin: 'si3 caa2', meaning: '厕所/toilet' },
+                { emoji: '🧸', word: '玩嘢', pinyin: 'waan6 je5', meaning: '玩/play' },
+                { emoji: '😢', word: '喊', pinyin: 'haam3', meaning: '哭/cry' },
+                { emoji: '😊', word: '笑', pinyin: 'siu3', meaning: '笑/smile' },
+                { emoji: '😋', word: '好味', pinyin: 'hou2 mei6', meaning: '好吃/delicious' },
+                { emoji: '👍', word: '叻', pinyin: 'lek1', meaning: '厉害/clever' }
+            ],
+            3: [
+                { emoji: '🎵', word: '齐齐望过去', pinyin: 'cai4 cai4 mong6 gwo3 heoi3', meaning: '排排坐，吃果果' },
+                { emoji: '🐔', word: '何家公鸡何家猜', pinyin: 'ho4 gaa1 gung1 gai1 ho4 gaa1 caai1', meaning: '猜拳游戏歌' },
+                { emoji: '🪑', word: '排排坐', pinyin: 'paai4 paai4 zo6', meaning: '排排坐，吃果果' },
+                { emoji: '🌙', word: '月光光', pinyin: 'jyut6 gwong1 gwong1', meaning: '经典童谣' },
+                { emoji: '🎈', word: '吹波波', pinyin: 'ceoi1 bo1 bo1', meaning: '吹泡泡' },
+                { emoji: '🚗', word: '车车车', pinyin: 'ce1 ce1 ce1', meaning: '汽车歌' }
+            ]
+        };
+
+        // 状态变量
+        let currentLevel = 1;
+        let currentWordIndex = 0;
+        let todayWords = { 1: [], 2: [], 3: [] };
+        let streak = 0;
+        let lastLearnDate = '';
+        let wordProgress = {};  // 词汇掌握度
+        let wordsLearned = new Set();
+        let learnedToday = new Set();
+
+        // 作业相关
+        let homeworkQuestions = [];
+        let homeworkIndex = 0;
+        let speakQuestions = [];
+        let speakIndex = 0;
+        let homeworkAnswers = [];
+        let isRecording = false;
+        let mediaRecorder = null;
+        let audioChunks = [];
+
+        // 初始化
+        function init() {
+            loadProgress();
+            updateStats();
+            registerServiceWorker();
+        }
+
+        // 页面切换
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+        }
+
+        // 加载进度
+        function loadProgress() {
+            const saved = localStorage.getItem('cantonese_progress');
+            if (saved) {
+                const data = JSON.parse(saved);
+                streak = data.streak || 0;
+                lastLearnDate = data.lastLearnDate || '';
+                wordProgress = data.wordProgress || {};
+                wordsLearned = new Set(data.wordsLearned || []);
+            }
+
+            const settings = localStorage.getItem('cantonese_settings');
+            if (settings) {
+                const s = JSON.parse(settings);
+                document.getElementById('reminderTime').value = s.reminderTime || '19:00';
+                document.getElementById('reminderEnabled').checked = s.reminderEnabled || false;
+            }
+        }
+
+        // 保存进度
+        function saveProgress() {
+            const today = new Date().toDateString();
+            if (lastLearnDate !== today) {
+                streak++;
+                lastLearnDate = today;
+            }
+
+            learnedToday.forEach(w => wordsLearned.add(w));
+
+            localStorage.setItem('cantonese_progress', JSON.stringify({
+                streak,
+                lastLearnDate,
+                wordProgress,
+                wordsLearned: Array.from(wordsLearned)
+            }));
+            updateStats();
+        }
+
+        // 更新统计
+        function updateStats() {
+            const today = new Date().toDateString();
+            if (lastLearnDate !== today) {
+                const last = new Date(lastLearnDate);
+                const now = new Date(today);
+                const diffDays = Math.floor((now - last) / (1000 * 60 * 60 * 24));
+                if (diffDays > 1) streak = 0;
+            }
+
+            document.getElementById('streakCount').textContent = streak;
+            document.getElementById('wordsLearned').textContent = wordsLearned.size;
+
+            // 统计已掌握的词汇（3星）
+            let mastered = 0;
+            Object.values(wordProgress).forEach(p => {
+                if (p.stars >= 3) mastered++;
+            });
+            document.getElementById('wordsMastered').textContent = mastered;
+        }
+
+        // 开始学习
+        function startLearning() {
+            generateTodayWords();
+            generateHomework();
+            document.getElementById('modal').classList.add('show');
+        }
+
+        // 确认开始
+        function confirmStart() {
+            closeModal();
+            saveProgress();
+            showLearnPage();
+        }
+
+        // 生成今日学习内容（根据难度调整）
+        function generateTodayWords() {
+     const today = new Date().toDateString();
+            const seed = today.split('').reduce((a, b) => a + b.charCodeAt(0), 0);
+            const random = (n) => (seed * 9301 + 49297) % 233280 / 233280 * n;
+
+            // 根据掌握度决定各级别抽取数量
+            let counts = { 1: 5, 2: 3, 3: 2 };
+            if (wordsLearned.size > 15) {
+                counts = { 1: 3, 2: 4, 3: 3 };  // 中级
+            }
+            if (wordsLearned.size > 40) {
+                counts = { 1: 2, 2: 4, 4: 4 };  // 高级
+            }
+
+            for (let level = 1; level <= 3; level++) {
+                const items = [...content[level]];
+                const shuffled = items.sort(() => random() - 0.5);
+                todayWords[level] = shuffled.slice(0, counts[level]);
+            }
+
+            learnedToday.clear();
+            Object.values(todayWords).forEach(arr => arr.forEach(w => learnedToday.add(w.word)));
+        }
+
+        // 生成作业
+        function generateHomework() {
+            homeworkQuestions = [];
+            speakQuestions = [];
+
+            // 收集今天学的词汇
+            const todayVocab = [];
+            Object.values(todayWords).forEach(arr => arr.forEach(w => todayVocab.push(w)));
+
+            // 生成选择题（3题）
+            for (let i = 0; i < Math.min(3, todayVocab.length); i++) {
+                const correct = todayVocab[i];
+                const others = todayVocab.filter((_, idx) => idx !== i);
+                const shuffled = others.sort(() => Math.random() - 0.5).slice(0, 3);
+                const options = [correct, ...shuffled].sort(() => Math.random() - 0.5);
+
+                homeworkQuestions.push({
+                    type: 'choice',
+                    word: correct,
+                    options: options
+                });
+            }
+
+            // 生成跟读题（2题）
+            for (let i = 0; i < Math.min(2, todayVocab.length); i++) {
+                speakQuestions.push(todayVocab[i]);
+            }
+
+            homeworkIndex = 0;
+            speakIndex = 0;
+            homeworkAnswers = [];
+        }
+
+        // 显示学习页面
+        function showLearnPage() {
+            currentLevel = 1;
+            currentWordIndex = 0;
+            renderLevelSelector();
+            selectLevel(1);
+            showPage('learnPage');
+        }
+
+        // 渲染级别选择器
+        function renderLevelSelector() {
+            const container = document.getElementById('levelSelector');
+            const levels = [
+                { id: 1, icon: '📚', name: '基础词汇' },
+                { id: 2, icon: '💬', name: '简单短语' },
+                { id: 3, icon: '🎵', name: '童谣儿歌' }
+            ];
+
+            container.innerHTML = levels.map(l => {
+                const stars = calculateLevelStars(l.id);
+                return `
+                    <button class="level-btn ${currentLevel === l.id ? 'active' : ''}"
+                            onclick="selectLevel(${l.id})" data-level="${l.id}">
+                        <span class="level-icon">${l.icon}</span>
+                        ${l.name}
+                        <div class="level-stars">${'⭐'.repeat(stars)}</div>
+                    </button>
+                `;
+            }).join('');
+        }
+
+        // 计算级别星级
+        function calculateLevelStars(level) {
+            const words = content[level];
+            let totalStars = 0;
+            let count = 0;
+            words.forEach(w => {
+                const p = wordProgress[w.word];
+                if (p) {
+                    totalStars += p.stars || 0;
+                    count++;
+                }
+            });
+            return count > 0 ? Math.min(3, Math.ceil(totalStars / count)) : 0;
+        }
+
+        // 选择级别
+        function selectLevel(level) {
+            currentLevel = level;
+            currentWordIndex = 0;
+            renderLevelSelector();
+            renderWordCards();
+        }
+
+        // 渲染词汇卡片
+        function renderWordCards() {
+            const words = todayWords[currentLevel];
+            const word = words[currentWordIndex];
+            const progress = wordProgress[word.word] || { count: 0, stars: 0 };
+
+            document.getElementById('wordCards').innerHTML = `
+                <div class="word-card">
+                    <div class="word-emoji">${word.emoji}</div>
+                    <div class="word-cantonese">${word.word}</div>
+                    <div class="word-pinyin">${word.pinyin}</div>
+                    <div class="word-meaning">${word.meaning}</div>
+                    <div class="word-stars">${'⭐'.repeat(progress.stars)}</div>
+                    <div class="word-actions">
+                        <button class="word-action-btn listen" onclick="speak('${word.word}')">🔊 听</button>
+                        <button class="word-action-btn speak" onclick="speakAndPractice('${word.word}')">🎤 读</button>
+                        <button class="word-action-btn done" onclick="markAsDone('${word.word}')">✓ 学会</button>
+                    </div>
+                </div>
+            `;
+
+            const progressPercent = ((currentWordIndex + 1) / words.length) * 100;
+            document.getElementById('progressFill').style.width = progressPercent + '%';
+        }
+
+        // 朗读 - 使用Google粤语语音
+        function speak(text) {
+            // 使用Google翻译的粤语TTS
+            const audio = new Audio();
+            // Google TTS API，支持粤语的 language code: yue
+            audio.src = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(text)}&tl=yue&client=tw-ob`;
+            audio.play().catch(() => {
+                // 如果失败，尝试浏览器自带语音
+                if ('speechSynthesis' in window) {
+                    const utterance = new SpeechSynthesisUtterance(text);
+                    utterance.lang = 'zh-CN';
+                    utterance.rate = 0.7;
+                    speechSynthesis.speak(utterance);
+                }
+            });
+        }
+
+        // 跟读练习
+        function speakAndPractice(text) {
+            speak(text);
+            showToast('跟爸爸妈妈一起读出来！');
+        }
+
+        // 标记为已学
+        function markAsDone(word) {
+            if (!wordProgress[word]) {
+                wordProgress[word] = { count: 0, stars: 0 };
+            }
+            wordProgress[word].count++;
+            // 更新星级
+            if (wordProgress[word].count >= 6) {
+                wordProgress[word].stars = 3;
+            } else if (wordProgress[word].count >= 3) {
+                wordProgress[word].stars = 2;
+            } else {
+                wordProgress[word].stars = 1;
+            }
+
+            saveProgress();
+            renderWordCards();
+            showToast('太棒了！继续加油！');
+        }
+
+        // 上一词
+        function prevWord() {
+            if (currentWordIndex > 0) {
+                currentWordIndex--;
+                renderWordCards();
+            }
+        }
+
+        // 下一词
+        function nextWord() {
+            const words = todayWords[currentLevel];
+            if (currentWordIndex < words.length - 1) {
+                currentWordIndex++;
+                renderWordCards();
+            } else {
+                showToast('这个级别学完啦！');
+            }
+        }
+
+        // 确认退出学习
+        function confirmExitLearn() {
+            if (confirm('确定要退出学习吗？今天的进度会保留。')) {
+                showPage('homePage');
+            }
+        }
+
+        // 完成学习
+        function finishLearning() {
+            if (homeworkQuestions.length > 0) {
+                renderHomework();
+                showPage('homeworkPage');
+            } else {
+                showCompletePage();
+            }
+        }
+
+        // ====== 作业相关 ======
+
+        // 渲染作业
+        function renderHomework() {
+            if (homeworkIndex >= homeworkQuestions.length) {
+                // 选择题完成，开始跟读
+                if (speakQuestions.length > 0) {
+                    renderSpeakHomework();
+                    showPage('speakHomeworkPage');
+                } else {
+                    showCompletePage();
+                }
+                return;
+            }
+
+            const q = homeworkQuestions[homeworkIndex];
+
+            // 渲染进度点
+            const progressHtml = homeworkQuestions.map((_, i) => {
+                let cls = 'homework-dot';
+                if (i < homeworkIndex) cls += ' done';
+                else if (i === homeworkIndex) cls += ' current';
+                return `<div class="${cls}"></div>`;
+            }).join('');
+            document.getElementById('homeworkProgress').innerHTML = progressHtml;
+
+            document.getElementById('homeworkQuestion').textContent = '听音识词 - 哪个是这个？';
+            document.getElementById('homeworkEmoji').textContent = q.word.emoji;
+
+            const optionsHtml = q.options.map(opt => `
+                <button class="homework-option" onclick="checkAnswer('${opt.word}', '${q.word.word}')">
+                    ${opt.emoji} ${opt.word}
+                </button>
+            `).join('');
+            document.getElementById('homeworkOptions').innerHTML = optionsHtml;
+        }
+
+        // 播放作业音频
+        function playHomeworkAudio() {
+            const q = homeworkQuestions[homeworkIndex];
+            speak(q.word.word);
+        }
+
+        // 检查答案
+        function checkAnswer(selected, correct) {
+            const isCorrect = selected === correct;
+            homeworkAnswers.push({ correct: isCorrect, word: correct });
+
+            if (isCorrect) {
+                showToast('正确！');
+                // 同步更新词汇掌握度
+                markAsDone(correct);
+            } else {
+                showToast('再试试看~');
+            }
+
+            homeworkIndex++;
+            setTimeout(renderHomework, 500);
+        }
+
+        // 渲染跟读作业
+        function renderSpeakHomework() {
+            if (speakIndex >= speakQuestions.length) {
+                showCompletePage();
+                return;
+            }
+
+            const q = speakQuestions[speakIndex];
+
+            const progressHtml = speakQuestions.map((_, i) => {
+                let cls = 'homework-dot';
+                if (i < speakIndex) cls += ' done';
+                else if (i === speakIndex) cls += ' current';
+                return `<div class="${cls}"></div>`;
+            }).join('');
+            document.getElementById('speakProgress').innerHTML = progressHtml;
+
+            document.getElementById('speakTarget').textContent = q.word;
+            document.getElementById('speakPinyin').textContent = q.pinyin;
+        }
+
+        // 播放跟读目标
+        function playSpeakTarget() {
+            const q = speakQuestions[speakIndex];
+            speak(q.word);
+        }
+
+        // 切换录音
+        async function toggleRecord() {
+            const btn = document.getElementById('recordBtn');
+            const hint = document.getElementById('recordHint');
+
+            if (!isRecording) {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    mediaRecorder = new MediaRecorder(stream);
+                    audioChunks = [];
+
+                    mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+                    mediaRecorder.onstop = () => {
+                        showToast('录音完成！棒棒的！');
+                        // 可以进一步处理录音
+                    };
+
+                    mediaRecorder.start();
+                    isRecording = true;
+                    btn.classList.add('recording');
+                    btn.textContent = '⏹';
+                    hint.textContent = '正在录音...';
+                } catch (err) {
+                    showToast('无法录音，请检查权限');
+                }
+            } else {
+                mediaRecorder.stop();
+                isRecording = false;
+                btn.classList.remove('recording');
+                btn.textContent = '🎤';
+                hint.textContent = '点击录音，跟读上面的词语';
+            }
+        }
+
+        // 下一道跟读题
+        function nextSpeakQuestion() {
+            speakIndex++;
+            renderSpeakHomework();
+        }
+
+        // 显示完成页面
+        function showCompletePage() {
+            const correct = homeworkAnswers.filter(a => a.correct).length;
+            const total = homeworkAnswers.length;
+            const score = total > 0 ? Math.round((correct / total) * 100) : 100;
+
+            document.getElementById('scoreValue').textContent = score;
+
+            // 显示错误词汇
+            const wrong = homeworkAnswers.filter(a => !a.correct);
+            if (wrong.length > 0) {
+                document.getElementById('wrongWords').style.display = 'block';
+                document.getElementById('wrongWordsList').innerHTML = wrong.map(w => `
+                    <div class="wrong-word-item">
+                        <span>${w.word}</span>
+                        <span>多练习</span>
+                    </div>
+                `).join('');
+            } else {
+                document.getElementById('wrongWords').style.display = 'none';
+            }
+
+            showPage('completePage');
+        }
+
+        // ====== 设置相关 ======
+
+        // 保存设置
+        function saveSettings() {
+            const reminderTime = document.getElementById('reminderTime').value;
+            const reminderEnabled = document.getElementById('reminderEnabled').checked;
+
+            localStorage.setItem('cantonese_settings', JSON.stringify({
+                reminderTime,
+                reminderEnabled
+            }));
+
+            if (reminderEnabled && 'Notification' in window) {
+                Notification.requestPermission();
+            }
+
+            showToast('设置已保存');
+            setTimeout(() => showPage('homePage'), 1000);
+        }
+
+        // 清除进度
+        function clearProgress() {
+            if (confirm('确定要清除所有学习记录吗？')) {
+                localStorage.removeItem('cantonese_progress');
+                streak = 0;
+                lastLearnDate = '';
+                wordProgress = {};
+                wordsLearned = new Set();
+                updateStats();
+                showToast('记录已清除');
+            }
+        }
+
+        // 关闭弹窗
+        function closeModal() {
+            document.getElementById('modal').classList.remove('show');
+        }
+
+        // 显示提示
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2000);
+        }
+
+        // 注册 Service Worker
+        function registerServiceWorker() {
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('sw.js').catch(() => {});
+            }
+        }
+
+        // 页面加载完成后初始化
+        window.addEventListener('DOMContentLoaded', init);
+    </script>
+</body>
+</html>
