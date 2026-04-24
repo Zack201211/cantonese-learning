@@ -1098,25 +1098,19 @@
             document.getElementById('progressFill').style.width = progressPercent + '%';
         }
 
-        // 朗读 - 点击播放
+        // 朗读 - 使用浏览器语音 + 外部语音
         function speak(text, event) {
             if (event) event.preventDefault();
 
-            // 百度粤语
-            try {
-                const audio = new Audio();
-                audio.src = `https://fanyi.baidu.com/gettts?lan=cte&text=${encodeURIComponent(text)}&spd=4&source=web`;
-                audio.play();
-            } catch(e) {}
+            // 先尝试百度粤语
+            const audio1 = new Audio();
+            audio1.src = `https://fanyi.baidu.com/gettts?lan=cte&text=${encodeURIComponent(text)}&spd=4&source=web`;
+            audio1.play();
 
             // 腾讯语音备用
-            setTimeout(() => {
-                try {
-                    const audio2 = new Audio();
-                    audio2.src = `https://tts.cloud.tencent.com/fcgi-bin/fcg_voice_tts?tex=${encodeURIComponent(text)}&voice=1011&speed=0&volume=0&pip=8&cue=0&filetype=mp3`;
-                    audio2.play();
-                } catch(e) {}
-            }, 300);
+            const audio2 = new Audio();
+            audio2.src = `https://tts.cloud.tencent.com/fcgi-bin/fcg_voice_tts?tex=${encodeURIComponent(text)}&voice=1011&speed=0&volume=0&pip=8&cue=0&filetype=mp3`;
+            setTimeout(() => audio2.play(), 200);
 
             // 浏览器语音备用
             setTimeout(() => {
@@ -1124,10 +1118,11 @@
                     speechSynthesis.cancel();
                     const utterance = new SpeechSynthesisUtterance(text);
                     utterance.lang = 'zh-CN';
-                    utterance.rate = 0.7;
+                    utterance.rate = 0.6;
+                    utterance.pitch = 1.1;
                     speechSynthesis.speak(utterance);
                 }
-            }, 600);
+            }, 400);
         }
 
         // 跟读练习
