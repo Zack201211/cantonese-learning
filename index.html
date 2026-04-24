@@ -1098,21 +1098,22 @@
             document.getElementById('progressFill').style.width = progressPercent + '%';
         }
 
-        // 朗读 - 使用Google粤语语音
+        // 朗读 - 使用百度语音
         function speak(text) {
-            // 使用Google翻译的粤语TTS
+            // 先尝试百度粤语
             const audio = new Audio();
-            // Google TTS API，支持粤语的 language code: yue
-            audio.src = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(text)}&tl=yue&client=tw-ob`;
-            audio.play().catch(() => {
-                // 如果失败，尝试浏览器自带语音
+            audio.src = `https://fanyi.baidu.com/gettts?lan=cte&text=${encodeURIComponent(text)}&spd=5&source=web`;
+            audio.play();
+
+            // 同时也尝试浏览器语音作为备用
+            audio.onerror = function() {
                 if ('speechSynthesis' in window) {
                     const utterance = new SpeechSynthesisUtterance(text);
                     utterance.lang = 'zh-CN';
-                    utterance.rate = 0.7;
+                    utterance.rate = 0.8;
                     speechSynthesis.speak(utterance);
                 }
-            });
+            };
         }
 
         // 跟读练习
